@@ -1,0 +1,75 @@
+##Template created with https://github.com/bpradipt/generator-kubegen
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    labels:
+        name: nmon-deploy
+    name: nmon-deploy
+    namespace: kube-system
+spec:
+    selector:
+        matchLabels:
+            app: nmon-deploy
+    template:
+        metadata:
+            labels:
+                app: nmon-deploy
+        spec:
+            hostPID: true
+            hostIPC: true
+            hostNetwork: false
+            containers:
+                -
+                    name: nmon-deploy
+                    image: mycluster.icp:8500/default/nmon
+                    env:
+                        - 
+                            name: NMON_OPTION
+                            value: "-ft -s 5 -c 1000"
+                    imagePullPolicy: IfNotPresent
+                    securityContext:
+                        privileged: true
+                    volumeMounts:
+                        -
+                            mountPath: /etc
+                            name: host-etc
+                            readOnly: true
+                        -
+                            mountPath: /sys
+                            name: host-sys
+                        -
+                            mountPath: /dev
+                            name: host-dev
+                        -
+                            mountPath: /nmon-data
+                            name: nmon-data-volume
+            volumes:
+                -
+                    name: nmon-data-volume
+                    hostPath:
+                        path: /nmon-data
+                        type: DirectoryOrCreate
+                -
+                    name: host-etc
+                    hostPath:
+                        path: /etc
+                        type: Directory
+                -
+                    name: host-dev
+                    hostPath:
+                        path: /dev
+                        type: Directory
+                -
+                    name: host-sys
+                    hostPath:
+                        path: /sys
+                        type: Directory
+
+            tolerations:
+                -
+                    effect: NoSchedule
+                    key: dedicated
+                    operator: Exists
+                -
+                    key: CriticalAddonsOnly
+                    operator: Exists
