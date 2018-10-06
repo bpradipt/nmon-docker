@@ -21,7 +21,7 @@ spec:
             containers:
                 -
                     name: nmon-deploy
-                    image: mycluster.icp:8500/default/nmon
+                    image: bpradipt/nmon
                     env:
                         - 
                             name: NMON_OPTION
